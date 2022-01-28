@@ -1,0 +1,89 @@
+version: "3.7"
+services:
+  
+  grafana:
+    image: grafana/grafana:7.1.1
+    restart: unless-stopped
+    environment: 
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel
+      - GF_SECURITY_ADMIN_PASSWORD=admin@1
+    volumes:
+      - gf_data:/var/lib/grafana
+      - ./gf-provisioning:/etc/grafana/provisioning
+      - ./gf-dashboards:/var/lib/grafana/dashboards
+    networks: 
+      - tigp_net
+    ports:
+      - "3000:3000"
+    depends_on: 
+      - influxdb
+  
+  influxdb:
+    image: influxdb:1.8
+    restart: unless-stopped
+    volumes: 
+      - ifx_data:/var/lib/influxdb
+    networks: 
+      - tigp_net
+    ports: 
+      - "8086:8086"
+  
+  telegraf:
+    image: telegraf:1.15
+    restart: unless-stopped
+    environment: 
+      - HOST_ETC=/hostfs/etc
+      - HOST_PROC=/hostfs/proc
+      - HOST_SYS=/hostfs/sys
+      - HOST_VAR=/hostfs/var
+      - HOST_RUN=/hostfs/run
+      - HOST_MOUNT_PREFIX=/hostfs
+    volumes: 
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /:/hostfs:ro
+      - /var:/hostfs/var
+    networks: 
+      - tigp_net
+  
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+    - 9090:9090
+    command:
+    - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+    - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks: 
+      - tigp_net
+    depends_on:
+    - cadvisor
+  
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    ports:
+    - 8081:8080
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    networks: 
+      - tigp_net
+    depends_on:
+    - redis
+  
+  redis:
+    image: redis:6.2-alpine
+    ports:
+    - 6379:6379
+    networks: 
+      - tigp_net
+
+volumes:
+  gf_data:
+  ifx_data:
+
+networks: 
+  tigp_net:
+    driver: bridge
