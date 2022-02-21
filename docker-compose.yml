@@ -1,89 +1,88 @@
 version: "3.7"
 services:
-  
+
   grafana:
-    image: grafana/grafana:7.1.1
+    image: grafana/grafana:8.3.4
     restart: unless-stopped
-    environment: 
-      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel
+    environment:
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/home.json
       - GF_SECURITY_ADMIN_PASSWORD=admin@1
     volumes:
       - gf_data:/var/lib/grafana
       - ./gf-provisioning:/etc/grafana/provisioning
       - ./gf-dashboards:/var/lib/grafana/dashboards
-    networks: 
-      - tigp_net
+    networks:
+      - tig_net
     ports:
       - "3000:3000"
-    depends_on: 
-      - influxdb
-  
+    depends_on:
+      - telegraf
+
   influxdb:
-    image: influxdb:1.8
+    image: influxdb:2.1.1-alpine
     restart: unless-stopped
-    volumes: 
-      - ifx_data:/var/lib/influxdb
-    networks: 
-      - tigp_net
-    ports: 
+    volumes:
+      - ifx_data:/var/lib/influxdb2
+    networks:
+      - tig_net
+    ports:
       - "8086:8086"
-  
+
+  influxdb_cli:
+    build: ./cli
+    volumes:
+      - ifx_data:/var/lib/influxdb2
+      # - ./ssl/influxdb-selfsigned.crt:/etc/ssl/influxdb-selfsigned.crt:rw
+      # - ./ssl/influxdb-selfsigned.key:/etc/ssl/influxdb-selfsigned.key:rw
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=influser
+      - DOCKER_INFLUXDB_INIT_PASSWORD=influx@1
+      - DOCKER_INFLUXDB_INIT_ORG=devops
+      - DOCKER_INFLUXDB_INIT_BUCKET=telegraf
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=[YOUR TOKEN HERE]
+      - DOCKER_INFLUXDB_INIT_DBV1=telegrafdb
+      - DOCKER_INFLUXDB_INIT_RPV1=telegrafrp
+      # - INFLUXD_TLS_CERT=/etc/ssl/influxdb-selfsigned.crt
+      # - INFLUXD_TLS_KEY=/etc/ssl/influxdb-selfsigned.key
+    entrypoint: ["./entrypoint.sh"]
+    restart: on-failure:5
+    networks:
+      - tig_net
+    depends_on:
+      - influxdb
+
   telegraf:
-    image: telegraf:1.15
+    image: telegraf:1.21-alpine
     restart: unless-stopped
-    environment: 
+    user: telegraf:998
+    env_file:
+      - ./influxv2.env
+    environment:
       - HOST_ETC=/hostfs/etc
       - HOST_PROC=/hostfs/proc
       - HOST_SYS=/hostfs/sys
       - HOST_VAR=/hostfs/var
       - HOST_RUN=/hostfs/run
       - HOST_MOUNT_PREFIX=/hostfs
-    volumes: 
+      - DOCKER_INFLUXDB_INIT_ORG=devops
+      - DOCKER_INFLUXDB_INIT_BUCKET=telegraf
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=[YOUR TOKEN HERE]
+      - DOCKER_INFLUXDB_INIT_DBV1=telegrafdb
+    volumes:
       - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - /:/hostfs:ro
       - /var:/hostfs/var
-    networks: 
-      - tigp_net
-  
-  prometheus:
-    image: prom/prometheus:latest
-    ports:
-    - 9090:9090
-    command:
-    - --config.file=/etc/prometheus/prometheus.yml
-    volumes:
-    - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    networks: 
-      - tigp_net
+    networks:
+      - tig_net
     depends_on:
-    - cadvisor
-  
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    ports:
-    - 8081:8080
-    volumes:
-    - /:/rootfs:ro
-    - /var/run:/var/run:rw
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
-    networks: 
-      - tigp_net
-    depends_on:
-    - redis
-  
-  redis:
-    image: redis:6.2-alpine
-    ports:
-    - 6379:6379
-    networks: 
-      - tigp_net
+      - influxdb
 
 volumes:
   gf_data:
   ifx_data:
 
-networks: 
-  tigp_net:
+networks:
+  tig_net:
     driver: bridge
