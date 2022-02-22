@@ -9,6 +9,7 @@ Nessa stack de observabilidade contemplei o TIG para monitorar host onde ela é 
 São três arquivos que precisam ser alterados [influxv2.env](influxv2.env), [ds.yml](gf-provisioning/datasources/ds.yml) e o proprio [compose file](docker-compose.yml).
 
 Lista do que precisa ser definido:
+
 - DOCKER_INFLUXDB_INIT_USERNAME=[YOUR USER HERE]
 - DOCKER_INFLUXDB_INIT_PASSWORD=[YOUR PASSWD HERE]
 - DOCKER_INFLUXDB_INIT_ORG=[YOUR ORG HERE]
