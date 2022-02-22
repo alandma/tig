@@ -7,20 +7,20 @@ datasources:
   access: proxy
   url: http://influxdb:8086
   secureJsonData:
-    token: 'RW3UzNjehR2CmGfSLNw0fU9B1mXVwqe'
+    token: '[YOUR TOKEN HERE]'
   jsonData:
     version: Flux
-    organization: devops
-    defaultBucket: telegraf
+    organization: [YOUR ORG HERE]
+    defaultBucket: [YOUR BUCKET HERE]
     tlsSkipVerify: true
 
 - name: InfluxDB_v2_InfluxQL
   type: influxdb
   access: proxy
   url: http://influxdb:8086
-  database: telegrafdb
+  database: [YOUR DB HERE]
   jsonData:
     httpMode: GET
     httpHeaderName1: 'Authorization'
   secureJsonData:
-    httpHeaderValue1: 'Token RW3UzNjehR2CmGfSLNw0fU9B1mXVwqe'
+    httpHeaderValue1: 'Token [YOUR TOKEN HERE]'

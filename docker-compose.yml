@@ -36,13 +36,13 @@ services:
       # - ./ssl/influxdb-selfsigned.key:/etc/ssl/influxdb-selfsigned.key:rw
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=influser
-      - DOCKER_INFLUXDB_INIT_PASSWORD=influx@1
-      - DOCKER_INFLUXDB_INIT_ORG=devops
-      - DOCKER_INFLUXDB_INIT_BUCKET=telegraf
+      - DOCKER_INFLUXDB_INIT_USERNAME=[YOUR USER HERE]
+      - DOCKER_INFLUXDB_INIT_PASSWORD=[YOUR PASSWD HERE]
+      - DOCKER_INFLUXDB_INIT_ORG=[YOUR ORG HERE]
+      - DOCKER_INFLUXDB_INIT_BUCKET=[YOUR BUCKET HERE]
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=[YOUR TOKEN HERE]
-      - DOCKER_INFLUXDB_INIT_DBV1=telegrafdb
-      - DOCKER_INFLUXDB_INIT_RPV1=telegrafrp
+      - DOCKER_INFLUXDB_INIT_DBV1=[YOUR DB HERE]
+      - DOCKER_INFLUXDB_INIT_RPV1=[YOUR RP HERE]
       # - INFLUXD_TLS_CERT=/etc/ssl/influxdb-selfsigned.crt
       # - INFLUXD_TLS_KEY=/etc/ssl/influxdb-selfsigned.key
     entrypoint: ["./entrypoint.sh"]
@@ -65,10 +65,10 @@ services:
       - HOST_VAR=/hostfs/var
       - HOST_RUN=/hostfs/run
       - HOST_MOUNT_PREFIX=/hostfs
-      - DOCKER_INFLUXDB_INIT_ORG=devops
-      - DOCKER_INFLUXDB_INIT_BUCKET=telegraf
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=[YOUR TOKEN HERE]
-      - DOCKER_INFLUXDB_INIT_DBV1=telegrafdb
+      - DOCKER_INFLUXDB_INIT_ORG=[YOUR ORG HERE]
+      - DOCKER_INFLUXDB_INIT_BUCKET=[YOUR BUCKET HERE]
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=[YOUR ORG HERE]
+      - DOCKER_INFLUXDB_INIT_DBV1=[YOUR DB HERE]
     volumes:
       - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
       - /var/run/docker.sock:/var/run/docker.sock

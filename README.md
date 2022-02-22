@@ -4,9 +4,22 @@ Nessa stack de observabilidade contemplei o TIG para monitorar host onde ela é 
 
 ## Rodando a stack
 
-Ajuste os **environments** do `compose file` e do `influxv2.env`.
+### Configurando os _environments_
 
-Algumas estão default, mas a `DOCKER_INFLUXDB_INIT_ADMIN_TOKEN` terá que gerar um token aleatorio e alterar nos arquivos citados.
+São três arquivos que precisam ser alterados [influxv2.env](influxv2.env), [ds.yml](gf-provisioning/datasources/ds.yml) e o proprio [compose file](docker-compose.yml).
+
+Lista do que precisa ser definido:
+- DOCKER_INFLUXDB_INIT_USERNAME=[YOUR USER HERE]
+- DOCKER_INFLUXDB_INIT_PASSWORD=[YOUR PASSWD HERE]
+- DOCKER_INFLUXDB_INIT_ORG=[YOUR ORG HERE]
+- DOCKER_INFLUXDB_INIT_BUCKET=[YOUR BUCKET HERE]
+- DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=[YOUR TOKEN HERE]
+- DOCKER_INFLUXDB_INIT_DBV1=[YOUR DB HERE]
+- DOCKER_INFLUXDB_INIT_RPV1=[YOUR RP HERE]
+
+>É somente procurar o "[YOUR ... HERE]" e alterar conforme variavel.
+
+### Executando
 
 ```bash
 docker-compose up -d
@@ -18,7 +31,7 @@ docker-compose down -v --rmi local
 ```
 
 ## Telegraf
-Será responsavel por coletar as metricas de acordo com a `config` do arquivo `telegraf.conf`.
+Será responsavel por coletar as metricas de acordo com a `config` do arquivo [telegraf.conf](telegraf.conf).
 
 ## Influxdb V2
 Armazena os dados das metricas coletados pelo telegraf.
@@ -26,7 +39,7 @@ Armazena os dados das metricas coletados pelo telegraf.
 ### Acessando Influxdb V2 dashboard
 > http://localhost:8086/signin
 
-Login e senha definidos no serviço `influxdb_cli` no `compose file`.
+Login e senha definidos no serviço `influxdb_cli` no [compose file](docker-compose.yml).
 
 ## Grafana
 Onde é mostrado atraves de dashboards as metricas coletadas.
@@ -48,7 +61,7 @@ Tambem podem ser adicionados atraves do portal oficial:
 >http://localhost:3000/
 
 Login: admin
-Senha definida no serviço `grafana` no `compose file`.
+Senha definida no serviço `grafana` no [compose file](docker-compose.yml).
 
 #### Referencias
  - https://github.com/InfluxCommunity/InfluxDBv2_Telegraf_Docker
